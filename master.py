@@ -1,5 +1,9 @@
 import os
+import getpass
 from cryptography.fernet import Fernet
+import logging
+
+logging.basicConfig(filename="app.log", level=logging.INFO)
 
 
 def write_key():
@@ -14,7 +18,7 @@ def load_key():
             key = file.read()
         return key
     except FileNotFoundError:
-        print("Key file not found. Please generate a new key.")
+        logging.error("Key file not found. Please generate a new key.")
         return None
 
 
@@ -28,18 +32,18 @@ def view():
                     "User:", user, "| Password:", fer.decrypt(passw.encode()).decode()
                 )
     except FileNotFoundError:
-        print("Passwords file not found.")
+        logging.error("Passwords file not found.")
 
 
 def add():
     name = input("Account Name: ")
-    pwd = input("Password: ")
+    pwd = getpass.getpass("Password: ")
 
     try:
         with open(os.getenv("PASSWORDS_FILE_PATH", "passwords.txt"), "a") as f:
             f.write(f"{name}|{str(fer.encrypt(pwd.encode()).decode())}\n")
     except FileNotFoundError:
-        print("Passwords file not found.")
+        logging.error("Passwords file not found.")
 
 
 key = load_key()
