@@ -17,12 +17,12 @@ def load_key():
         with open(os.getenv("KEY_FILE_PATH", "key.key"), "rb") as file:
             key = file.read()
         return key
-    except FileNotFoundError:
+    except FileNotFoundError as e:
         logging.error("Key file not found. Please generate a new key.")
-        return None
+        raise FileNotFoundError("Key file not found. Please generate a new key.") from e
 
 
-def view():
+def view(fer):
     try:
         with open(os.getenv("PASSWORDS_FILE_PATH", "passwords.txt"), "r") as f:
             for line in f:
@@ -31,19 +31,21 @@ def view():
                 print(
                     "User:", user, "| Password:", fer.decrypt(passw.encode()).decode()
                 )
-    except FileNotFoundError:
+    except FileNotFoundError as e:
         logging.error("Passwords file not found.")
+        raise FileNotFoundError("Passwords file not found.") from e
 
 
-def add():
+def add(fer):
     name = input("Account Name: ")
     pwd = getpass.getpass("Password: ")
 
     try:
         with open(os.getenv("PASSWORDS_FILE_PATH", "passwords.txt"), "a") as f:
-            f.write(f"{name}|{str(fer.encrypt(pwd.encode()).decode())}\n")
-    except FileNotFoundError:
+            f.write(f"{name}|{fer.encrypt(pwd.encode()).decode()}\n")
+    except FileNotFoundError as e:
         logging.error("Passwords file not found.")
+        raise FileNotFoundError("Passwords file not found.") from e
 
 
 key = load_key()
@@ -58,9 +60,9 @@ if key is not None:
             break
 
         if mode == "view":
-            view()
+            view(fer)
         elif mode == "add":
-            add()
+            add(fer)
         else:
             print("Invalid mode.")
             continue
